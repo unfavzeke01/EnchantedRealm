@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,13 +6,52 @@ import { MessageCard } from "@/components/message-card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Users, MessageCircle, Heart, Zap } from "lucide-react";
+import { Users, MessageCircle, Heart, Zap, LogOut, Lock } from "lucide-react";
+import { useLocation } from "wouter";
 import type { MessageWithReplies } from "@shared/schema";
 
 export default function Admin() {
   const [selectedRecipient, setSelectedRecipient] = useState("Admin");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    const authenticated = localStorage.getItem("adminAuthenticated");
+    if (authenticated === "true") {
+      setIsAuthenticated(true);
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuthenticated");
+    setIsAuthenticated(false);
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully.",
+    });
+    navigate("/login");
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <Lock className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h2 className="text-xl font-light mb-2">Access Denied</h2>
+            <p className="text-gray-600 mb-4">Please log in to access the admin panel.</p>
+            <Button onClick={() => navigate("/login")} className="w-full">
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const { data: recipients = [] } = useQuery<string[]>({
     queryKey: ["/api/recipients"],
@@ -81,7 +120,18 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Admin Panel</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Admin Panel</h1>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
+          </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Private messages and community moderation
           </p>

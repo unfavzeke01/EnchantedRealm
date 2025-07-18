@@ -10,6 +10,7 @@ import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import Login from "@/pages/login";
 import { useState, useEffect } from "react";
 
 function Router() {
@@ -38,6 +39,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/admin" component={Admin} />
+        <Route path="/login" component={Login} />
         <Route component={NotFound} />
       </Switch>
     </div>

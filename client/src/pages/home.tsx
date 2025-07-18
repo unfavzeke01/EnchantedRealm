@@ -18,6 +18,7 @@ export default function Home() {
   const [content, setContent] = useState("");
   const [spotifyLink, setSpotifyLink] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [senderName, setSenderName] = useState("");
   const [showRecipientSelector, setShowRecipientSelector] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,7 +32,7 @@ export default function Home() {
   });
 
   const createMessageMutation = useMutation({
-    mutationFn: async (data: { content: string; category: string; spotifyLink?: string; isPublic: boolean; recipient?: string }) => {
+    mutationFn: async (data: { content: string; category: string; spotifyLink?: string; isPublic: boolean; recipient?: string; senderName?: string }) => {
       return await apiRequest("POST", "/api/messages", data);
     },
     onSuccess: () => {
@@ -39,6 +40,7 @@ export default function Home() {
       setContent("");
       setSpotifyLink("");
       setRecipient("");
+      setSenderName("");
       setShowRecipientSelector(false);
       toast({
         title: "Message sent!",
@@ -69,6 +71,7 @@ export default function Home() {
       category,
       spotifyLink: spotifyLink || undefined,
       isPublic: true,
+      senderName: senderName || undefined,
     });
   };
 
@@ -97,6 +100,7 @@ export default function Home() {
       spotifyLink: spotifyLink || undefined,
       isPublic: false,
       recipient,
+      senderName: senderName || undefined,
     });
   };
 
@@ -141,6 +145,16 @@ export default function Home() {
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Share what's on your heart..."
                   className="resize-none"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="senderName">Your Name (Optional)</Label>
+                <Input
+                  id="senderName"
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  placeholder="Leave blank to remain anonymous"
                 />
               </div>
 

@@ -91,6 +91,12 @@ export function MessageCard({ message, showReplies = true }: MessageCardProps) {
         </span>
       </div>
 
+      {message.senderName && (
+        <div className="mb-3">
+          <span className="text-sm text-gray-600 font-medium">From: {message.senderName}</span>
+        </div>
+      )}
+
       <p className="text-gray-900 mb-4 leading-relaxed">{message.content}</p>
 
       {message.spotifyLink && (
