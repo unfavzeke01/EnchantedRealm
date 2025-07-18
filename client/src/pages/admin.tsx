@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCard } from "@/components/message-card";
+import { AdminManagement } from "@/components/admin-management";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Users, MessageCircle, Heart, Zap, LogOut, Lock } from "lucide-react";
+import { Users, MessageCircle, Heart, Zap, LogOut, Lock, Settings } from "lucide-react";
 import { useLocation } from "wouter";
 import type { MessageWithReplies } from "@shared/schema";
 
@@ -159,27 +161,40 @@ export default function Admin() {
           })}
         </div>
 
-        {/* Private Messages */}
-        <Card className="mb-8">
-          <CardContent className="p-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Private Messages</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Filter by recipient:</span>
-                <Select value={selectedRecipient} onValueChange={setSelectedRecipient}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Select recipient" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {recipients.map((recipient) => (
-                      <SelectItem key={recipient} value={recipient}>
-                        {recipient}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+        {/* Main Content with Tabs */}
+        <Tabs defaultValue="messages" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              Messages
+            </TabsTrigger>
+            <TabsTrigger value="admin-management" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Admin Management
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="messages" className="mt-6">
+            <Card>
+              <CardContent className="p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Private Messages</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Filter by recipient:</span>
+                    <Select value={selectedRecipient} onValueChange={setSelectedRecipient}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Select recipient" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {recipients.map((recipient) => (
+                          <SelectItem key={recipient} value={recipient}>
+                            {recipient}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
             {loadingPrivate ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -231,62 +246,14 @@ export default function Admin() {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Moderation Tools */}
-        <Card>
-          <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Moderation Tools</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-3">Content Guidelines</h3>
-                <p className="text-gray-600 text-sm mb-4">Review and update community guidelines</p>
-                <Button 
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => {
-                    toast({
-                      title: "Feature coming soon",
-                      description: "Content guidelines management will be added soon.",
-                    });
-                  }}
-                >
-                  Manage Guidelines
-                </Button>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-3">Message Reports</h3>
-                <p className="text-gray-600 text-sm mb-4">View and handle reported messages</p>
-                <Button 
-                  className="bg-red-500 hover:bg-red-600 text-white"
-                  onClick={() => {
-                    toast({
-                      title: "Feature coming soon",
-                      description: "Message reporting system will be added soon.",
-                    });
-                  }}
-                >
-                  View Reports
-                </Button>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="font-semibold text-gray-900 mb-3">User Management</h3>
-                <p className="text-gray-600 text-sm mb-4">Manage user permissions and blocks</p>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    toast({
-                      title: "Feature coming soon",
-                      description: "User management system will be added soon.",
-                    });
-                  }}
-                >
-                  Manage Users
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="admin-management" className="mt-6">
+            <AdminManagement />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

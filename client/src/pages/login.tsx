@@ -17,20 +17,56 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple admin password check
-    if (password === "admin123") {
-      localStorage.setItem("adminAuthenticated", "true");
-      toast({
-        title: "Welcome back!",
-        description: "You are now logged in as admin.",
+    try {
+      // Try new admin system first
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "admin", password }),
       });
-      navigate("/admin");
-    } else {
-      toast({
-        title: "Access denied",
-        description: "Incorrect password. Please try again.",
-        variant: "destructive",
-      });
+
+      if (response.ok) {
+        const admin = await response.json();
+        localStorage.setItem("adminAuthenticated", "true");
+        localStorage.setItem("adminData", JSON.stringify(admin));
+        toast({
+          title: "Welcome back!",
+          description: `Logged in as ${admin.nickname}`,
+        });
+        navigate("/admin");
+      } else if (password === "admin123") {
+        // Fallback to simple password check
+        localStorage.setItem("adminAuthenticated", "true");
+        localStorage.setItem("adminData", JSON.stringify({ nickname: "Admin", role: "admin" }));
+        toast({
+          title: "Welcome back!",
+          description: "You are now logged in as admin.",
+        });
+        navigate("/admin");
+      } else {
+        toast({
+          title: "Access denied",
+          description: "Incorrect password. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      // Fallback to simple password check
+      if (password === "admin123") {
+        localStorage.setItem("adminAuthenticated", "true");
+        localStorage.setItem("adminData", JSON.stringify({ nickname: "Admin", role: "admin" }));
+        toast({
+          title: "Welcome back!",
+          description: "You are now logged in as admin.",
+        });
+        navigate("/admin");
+      } else {
+        toast({
+          title: "Access denied",
+          description: "Incorrect password. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
 
     setIsLoading(false);

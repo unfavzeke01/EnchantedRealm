@@ -1,4 +1,4 @@
-import { messages, replies, type Message, type Reply, type InsertMessage, type InsertReply, type MessageWithReplies } from "@shared/schema";
+import { messages, replies, admins, type Message, type Reply, type Admin, type InsertMessage, type InsertReply, type InsertAdmin, type MessageWithReplies } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
@@ -9,12 +9,19 @@ export interface IStorage {
   getPrivateMessages(): Promise<MessageWithReplies[]>;
   getMessagesByCategory(category: string): Promise<MessageWithReplies[]>;
   getMessagesByRecipient(recipient: string): Promise<MessageWithReplies[]>;
+  updateMessageVisibility(messageId: number, isPublic: boolean): Promise<Message>;
   
   // Reply operations
   createReply(reply: InsertReply): Promise<Reply>;
   getRepliesByMessageId(messageId: number): Promise<Reply[]>;
   
-  // Recipients operations
+  // Admin operations
+  createAdmin(admin: InsertAdmin): Promise<Admin>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  getAllAdmins(): Promise<Admin[]>;
+  updateAdminStatus(adminId: number, isActive: boolean): Promise<Admin>;
+  
+  // Recipients operations - now returns admin nicknames
   getRecipients(): Promise<string[]>;
 }
 
@@ -96,10 +103,62 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateMessageVisibility(messageId: number, isPublic: boolean): Promise<Message> {
+    const [message] = await db
+      .update(messages)
+      .set({ isPublic })
+      .where(eq(messages.id, messageId))
+      .returning();
+    return message;
+  }
+
+  async createAdmin(adminData: InsertAdmin): Promise<Admin> {
+    const [admin] = await db
+      .insert(admins)
+      .values(adminData)
+      .returning();
+    return admin;
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db
+      .select()
+      .from(admins)
+      .where(eq(admins.username, username))
+      .limit(1);
+    return admin;
+  }
+
+  async getAllAdmins(): Promise<Admin[]> {
+    const result = await db
+      .select()
+      .from(admins)
+      .orderBy(desc(admins.createdAt));
+    return result;
+  }
+
+  async updateAdminStatus(adminId: number, isActive: boolean): Promise<Admin> {
+    const [admin] = await db
+      .update(admins)
+      .set({ isActive })
+      .where(eq(admins.id, adminId))
+      .returning();
+    return admin;
+  }
+
   async getRecipients(): Promise<string[]> {
-    // For now, return a predefined list of recipients
-    // In a real app, this might come from a users table
-    return ["Admin", "Moderator", "Support", "Community Manager"];
+    // Return active admin nicknames as recipients
+    const activeAdmins = await db
+      .select({ nickname: admins.nickname })
+      .from(admins)
+      .where(eq(admins.isActive, true));
+    
+    if (activeAdmins.length === 0) {
+      // Fallback to default recipients if no admins exist
+      return ["Admin", "Moderator", "Support", "Community Manager"];
+    }
+    
+    return activeAdmins.map(admin => admin.nickname);
   }
 }
 

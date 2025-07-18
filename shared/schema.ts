@@ -22,6 +22,17 @@ export const replies = pgTable("replies", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Admin accounts table
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  nickname: text("nickname").notNull().unique(),
+  role: text("role").notNull().default("admin"), // admin, moderator, support, community_manager
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
 export const messagesRelations = relations(messages, ({ many }) => ({
   replies: many(replies),
 }));
@@ -43,10 +54,17 @@ export const insertReplySchema = createInsertSchema(replies).omit({
   createdAt: true,
 });
 
+export const insertAdminSchema = createInsertSchema(admins).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = typeof messages.$inferSelect;
 export type InsertReply = z.infer<typeof insertReplySchema>;
 export type Reply = typeof replies.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;
+export type Admin = typeof admins.$inferSelect;
 
 export type MessageWithReplies = Message & {
   replies: Reply[];
