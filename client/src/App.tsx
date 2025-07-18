@@ -16,14 +16,14 @@ function Router() {
   const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedEnchantedVoices');
+    const hasVisited = localStorage.getItem('hasVisitedWhisperingNetwork');
     if (hasVisited) {
       setShowLanding(false);
     }
   }, []);
 
   const handleEnterApp = () => {
-    localStorage.setItem('hasVisitedEnchantedVoices', 'true');
+    localStorage.setItem('hasVisitedWhisperingNetwork', 'true');
     setShowLanding(false);
   };
 

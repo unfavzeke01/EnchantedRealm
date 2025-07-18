@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
 
-export default function Landing() {
-  const [, setLocation] = useLocation();
+interface LandingProps {
+  onEnter: () => void;
+}
 
+export default function Landing({ onEnter }: LandingProps) {
   const handleEnter = () => {
-    setLocation("/");
+    onEnter();
   };
 
   return (
@@ -25,16 +26,16 @@ export default function Landing() {
       <div className="relative z-10 text-center max-w-2xl mx-auto px-6 animate-fade-in">
         <div className="glass-effect rounded-2xl p-8 md:p-12 shadow-2xl">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Enchanted Voices
+            Whispering Network
           </h1>
           <p className="text-xl md:text-2xl text-gray-700 mb-8 font-light italic leading-relaxed">
             "In this sacred space, every whisper finds its wings, every thought discovers its voice, and every soul remembers it deserves to be heard."
           </p>
           <Button 
             onClick={handleEnter}
-            className="enchanted-gradient text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-primary to-accent text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
-            Enter the Enchanted World
+            Enter
           </Button>
           <div className="mt-8 text-sm text-gray-600">
             Made with love from <span className="font-semibold text-primary">IRON</span>

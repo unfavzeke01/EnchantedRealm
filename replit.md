@@ -1,8 +1,8 @@
-# Enchanted Voices
+# Whispering Network
 
 ## Overview
 
-Enchanted Voices is a modern full-stack web application built as a community platform for sharing messages and thoughts. It features a React frontend with TypeScript, an Express.js backend, and uses PostgreSQL with Drizzle ORM for data management. The application allows users to create messages in different categories, share them publicly or privately, and engage with the community through replies.
+Whispering Network is a modern full-stack web application built as a community platform for sharing anonymous messages and thoughts. It features a React frontend with TypeScript, an Express.js backend, and uses PostgreSQL with Drizzle ORM for data management. The application allows users to create messages in different categories, share them publicly or privately, and engage with the community through replies.
 
 ## User Preferences
 

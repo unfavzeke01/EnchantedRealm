@@ -153,6 +153,14 @@ export default function Home() {
                   {createMessageMutation.isPending ? "Sending..." : "Send Privately to Admin"}
                 </Button>
               </div>
+
+              <div className="mt-6 text-center">
+                <Link href="/dashboard">
+                  <Button variant="outline" className="text-primary hover:text-primary/80">
+                    View Community Dashboard
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>

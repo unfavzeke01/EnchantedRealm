@@ -16,7 +16,7 @@ export function Navigation() {
           <div className="flex items-center">
             <Link href="/">
               <h2 className="text-xl font-bold text-primary cursor-pointer">
-                Enchanted Voices
+                Whispering Network
               </h2>
             </Link>
           </div>

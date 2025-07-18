@@ -72,9 +72,6 @@
 }
 
 @layer utilities {
-  .enchanted-gradient {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--dreams) 50%, var(--hope) 100%);
-  }
   
   .glass-effect {
     backdrop-filter: blur(10px);
