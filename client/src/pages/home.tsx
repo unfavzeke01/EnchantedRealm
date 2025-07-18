@@ -17,6 +17,8 @@ export default function Home() {
   const [category, setCategory] = useState("hope");
   const [content, setContent] = useState("");
   const [spotifyLink, setSpotifyLink] = useState("");
+  const [recipient, setRecipient] = useState("");
+  const [showRecipientSelector, setShowRecipientSelector] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -24,14 +26,20 @@ export default function Home() {
     queryKey: ["/api/messages/public"],
   });
 
+  const { data: recipients = [] } = useQuery<string[]>({
+    queryKey: ["/api/recipients"],
+  });
+
   const createMessageMutation = useMutation({
-    mutationFn: async (data: { content: string; category: string; spotifyLink?: string; isPublic: boolean }) => {
+    mutationFn: async (data: { content: string; category: string; spotifyLink?: string; isPublic: boolean; recipient?: string }) => {
       return await apiRequest("POST", "/api/messages", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       setContent("");
       setSpotifyLink("");
+      setRecipient("");
+      setShowRecipientSelector(false);
       toast({
         title: "Message sent!",
         description: "Your message has been shared with the community.",
@@ -74,11 +82,21 @@ export default function Home() {
       return;
     }
 
+    if (!recipient) {
+      toast({
+        title: "Recipient required",
+        description: "Please select who to send the message to.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     createMessageMutation.mutate({
       content,
       category,
       spotifyLink: spotifyLink || undefined,
       isPublic: false,
+      recipient,
     });
   };
 
@@ -137,6 +155,24 @@ export default function Home() {
                 />
               </div>
 
+              {showRecipientSelector && (
+                <div>
+                  <Label htmlFor="recipient">Send to</Label>
+                  <Select value={recipient} onValueChange={setRecipient}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select who to send to..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {recipients.map((recipientName) => (
+                        <SelectItem key={recipientName} value={recipientName}>
+                          {recipientName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   onClick={handleSendPublic}
@@ -145,13 +181,34 @@ export default function Home() {
                 >
                   {createMessageMutation.isPending ? "Sending..." : "Send to Everyone"}
                 </Button>
-                <Button 
-                  onClick={handleSendPrivate}
-                  disabled={createMessageMutation.isPending}
-                  className="flex-1 bg-primary hover:bg-primary/90"
-                >
-                  {createMessageMutation.isPending ? "Sending..." : "Send Privately to Admin"}
-                </Button>
+                {!showRecipientSelector ? (
+                  <Button 
+                    onClick={() => setShowRecipientSelector(true)}
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                  >
+                    Send Privately
+                  </Button>
+                ) : (
+                  <div className="flex-1 flex gap-2">
+                    <Button 
+                      onClick={handleSendPrivate}
+                      disabled={createMessageMutation.isPending}
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                    >
+                      {createMessageMutation.isPending ? "Sending..." : "Send Message"}
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        setShowRecipientSelector(false);
+                        setRecipient("");
+                      }}
+                      variant="outline"
+                      className="px-4"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 text-center">

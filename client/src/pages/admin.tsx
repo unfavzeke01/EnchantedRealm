@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageCard } from "@/components/message-card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -9,11 +10,17 @@ import { Users, MessageCircle, Heart, Zap } from "lucide-react";
 import type { MessageWithReplies } from "@shared/schema";
 
 export default function Admin() {
+  const [selectedRecipient, setSelectedRecipient] = useState("Admin");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: recipients = [] } = useQuery<string[]>({
+    queryKey: ["/api/recipients"],
+  });
+
   const { data: privateMessages = [], isLoading: loadingPrivate } = useQuery<MessageWithReplies[]>({
-    queryKey: ["/api/messages/private"],
+    queryKey: ["/api/messages/recipient", selectedRecipient],
+    enabled: !!selectedRecipient,
   });
 
   const { data: publicMessages = [], isLoading: loadingPublic } = useQuery<MessageWithReplies[]>({
@@ -105,7 +112,24 @@ export default function Admin() {
         {/* Private Messages */}
         <Card className="mb-8">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Private Messages</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Private Messages</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Filter by recipient:</span>
+                <Select value={selectedRecipient} onValueChange={setSelectedRecipient}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Select recipient" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {recipients.map((recipient) => (
+                      <SelectItem key={recipient} value={recipient}>
+                        {recipient}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             {loadingPrivate ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -113,7 +137,7 @@ export default function Admin() {
               </div>
             ) : privateMessages.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600">No private messages yet.</p>
+                <p className="text-gray-600">No private messages for {selectedRecipient} yet.</p>
               </div>
             ) : (
               <div className="space-y-6">

@@ -8,10 +8,14 @@ export interface IStorage {
   getPublicMessages(): Promise<MessageWithReplies[]>;
   getPrivateMessages(): Promise<MessageWithReplies[]>;
   getMessagesByCategory(category: string): Promise<MessageWithReplies[]>;
+  getMessagesByRecipient(recipient: string): Promise<MessageWithReplies[]>;
   
   // Reply operations
   createReply(reply: InsertReply): Promise<Reply>;
   getRepliesByMessageId(messageId: number): Promise<Reply[]>;
+  
+  // Recipients operations
+  getRecipients(): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -77,6 +81,25 @@ export class DatabaseStorage implements IStorage {
       .where(eq(replies.messageId, messageId))
       .orderBy(desc(replies.createdAt));
     return result;
+  }
+
+  async getMessagesByRecipient(recipient: string): Promise<MessageWithReplies[]> {
+    const result = await db.query.messages.findMany({
+      where: eq(messages.recipient, recipient),
+      orderBy: desc(messages.createdAt),
+      with: {
+        replies: {
+          orderBy: desc(replies.createdAt),
+        },
+      },
+    });
+    return result;
+  }
+
+  async getRecipients(): Promise<string[]> {
+    // For now, return a predefined list of recipients
+    // In a real app, this might come from a users table
+    return ["Admin", "Moderator", "Support", "Community Manager"];
   }
 }
 

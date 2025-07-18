@@ -40,6 +40,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get messages by recipient
+  app.get("/api/messages/recipient/:recipient", async (req, res) => {
+    try {
+      const { recipient } = req.params;
+      const messages = await storage.getMessagesByRecipient(recipient);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages by recipient:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Get available recipients
+  app.get("/api/recipients", async (req, res) => {
+    try {
+      const recipients = await storage.getRecipients();
+      res.json(recipients);
+    } catch (error) {
+      console.error("Error fetching recipients:", error);
+      res.status(500).json({ message: "Failed to fetch recipients" });
+    }
+  });
+
   // Create new message
   app.post("/api/messages", async (req, res) => {
     try {

@@ -81,6 +81,11 @@ export function MessageCard({ message, showReplies = true }: MessageCardProps) {
         <span className={`text-sm font-medium ${category?.color}`}>
           {category?.name}
         </span>
+        {message.recipient && (
+          <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded">
+            To: {message.recipient}
+          </span>
+        )}
         <span className="text-xs text-gray-500">
           • {formatTimeAgo(message.createdAt!)}
         </span>

@@ -9,6 +9,7 @@ export const messages = pgTable("messages", {
   category: text("category").notNull(),
   spotifyLink: text("spotify_link"),
   isPublic: boolean("is_public").default(true),
+  recipient: text("recipient"), // Who the private message is sent to
   createdAt: timestamp("created_at").defaultNow(),
 });
 
